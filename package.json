@@ -1,6 +1,6 @@
 {
   "name": "json-ref-lite",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Extremely light weight module to resolve jsonschema '$ref' references",
   "main": "index.js",
   "dependencies": {
@@ -18,5 +18,6 @@
   "bugs": {
     "url": "https://github.com/coderofsalvation/json-ref-lite/issues"
   },
+  "keywords": "json, jsonschema, ref, $ref, resolve",
   "homepage": "https://github.com/coderofsalvation/json-ref-lite"
 }
