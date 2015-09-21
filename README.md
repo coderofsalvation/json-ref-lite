@@ -1,6 +1,7 @@
 Extremely light weight module to resolve jsonschema '$ref' references 
 
-This is a zero-dependency module, in contrast to all mammoth-modules i found on npm which solve this (turns out) simple problem.
+This is a zero-dependency module.
+I found similar modules but for some reason they had 10++ dependencies.
 
 # Usage 
 
