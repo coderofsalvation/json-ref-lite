@@ -9,11 +9,11 @@ I found similar modules but for some reason they had 10++ dependencies.
 
     json = {
       foo: {
-        id: '#/foo/bar',
+        id: 'foobar',
         value: 'bar'
       },
       example: {
-        '$ref': '#/foo/bar'
+        '$ref': 'foobar'
       }
     };
 
@@ -22,7 +22,7 @@ I found similar modules but for some reason they had 10++ dependencies.
 Outputs:
 
     { 
-      foo: { id: '#/foo/bar', value: 'bar' },
+      foo: { id: 'foobar', value: 'bar' },
       example: { value: 'bar' } 
     }
 
@@ -37,6 +37,25 @@ It is extremely useful to use '$ref' keys in json.
 * supports resolving internal jsonpointers ( "$ref": "#/foo/value" )
 * supports resolving local files ( "$ref": "/some/path/test.json" )
 * supports resolving remote json(schema) files ( "$ref": "http://foo.com/person.json" )
+
+# Example: id fields
+
+    json = {
+      foo: {
+        id: 'foobar',
+        value: 'bar'
+      },
+      example: {
+        '$ref': 'foobar'
+      }
+    };
+
+outputs:
+
+    { 
+      foo: { id: 'foobar', value: 'bar' },
+      example: { value: 'bar' } 
+    }
 
 # Example: jsonpointers
 

@@ -4,26 +4,52 @@ json = []
 
 json.push 
   foo:
-    id: '#/foo/bar' 
+    id: 'foobar' 
     value: 'bar' 
   example:
-    '$ref': '#/foo/bar' 
+    '$ref': 'foobar' 
 
 json.push 
   foo:
-    id: '#/foo/bar' 
+    id: 'foobar' 
     value: 'bar' 
     foo: 'flop' 
   example:
-    '$ref': '#/foo/bar' 
+    '$ref': 'foobar' 
 
 json.push 
   foo:
-    id: '#/foo/bar' 
+    id: 'foobar' 
     value: 'bar' 
     foo: 'flop' 
   example:
-    ids: [{'$ref': '#/foo/bar'},{'$ref':'#/foo/bar'}]
+    ids: [{'$ref': 'foobar'},{'$ref':'foobar'}]
+
+json.push 
+  foo:
+    value: 'bar' 
+    foo: 'flop' 
+  example:
+    ids: [{'$ref': '#/foo/value'},{'$ref':'#/foo/foo'}]
+
+json.push 
+  foo:
+    value: 'bar' 
+    foo: 'flop' 
+  example:
+    ids: {'$ref': '#/foo/value/this/does/not/resolve'}
+
+json.push 
+  foo:
+    "$ref": "./test.json" 
+
+json.push 
+  foo:
+    "$ref": "/this/does/not/exist/test.json" 
+
+json.push 
+  foo:
+    "$ref": "http://json-schema.org/address" 
 
 for j in json
-  console.dir reflite.resolve j
+  console.log JSON.stringify reflite.resolve(j), null, 2
