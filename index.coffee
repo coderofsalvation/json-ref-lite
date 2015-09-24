@@ -1,3 +1,7 @@
+fs    = require 'fs'
+request = false
+request = require 'sync-request' if fs.existsSync __dirname+'/node_modules/sync-request'
+
 module.exports = () ->
   
   @.findIds = (json, ids) ->
@@ -8,16 +12,25 @@ module.exports = () ->
       @.findIds v, ids if typeof v is 'object' 
     ids[id] = obj if id
 
-  @.replace = (json, ids) ->
+  @.replace = (json, ids, root) ->
     for k,v of json 
-      if v['$ref']? and ids[ v['$ref'] ]?
-        json[k] = ids[ v['$ref'] ] 
+      if v['$ref']? 
+        ref = v['$ref']
+        if ids[ ref ]?
+          json[k] = ids[ ref ] 
+        else if request and String(ref).match /^http/
+          json[k] = JSON.parse request("GET",ref).getBody().toString()
+        else if fs.existsSync ref 
+          json[k] = JSON.parse fs.readFileSync(ref).toString()
+        else if String(ref).match /^#\//
+          evalstr = ref.replace( /\//g, '.' ).replace( /#/,'root')
+          json[k] = eval( 'try{'+evalstr+'}catch(e){}')
       else
-        @.replace v, ids if typeof v is 'object' 
+        @.replace v, ids, root if typeof v is 'object' 
 
   @.resolve = (json) ->
     ids = {}; @.findIds json, ids
-    @.replace json, ids
+    @.replace json, ids, json
     return json
 
   return @

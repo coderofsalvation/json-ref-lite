@@ -8,45 +8,91 @@
 
   json.push({
     foo: {
-      id: '#/foo/bar',
+      id: 'foobar',
       value: 'bar'
     },
     example: {
-      '$ref': '#/foo/bar'
+      '$ref': 'foobar'
     }
   });
 
   json.push({
     foo: {
-      id: '#/foo/bar',
+      id: 'foobar',
       value: 'bar',
       foo: 'flop'
     },
     example: {
-      '$ref': '#/foo/bar'
+      '$ref': 'foobar'
     }
   });
 
   json.push({
     foo: {
-      id: '#/foo/bar',
+      id: 'foobar',
       value: 'bar',
       foo: 'flop'
     },
     example: {
       ids: [
         {
-          '$ref': '#/foo/bar'
+          '$ref': 'foobar'
         }, {
-          '$ref': '#/foo/bar'
+          '$ref': 'foobar'
         }
       ]
     }
   });
 
+  json.push({
+    foo: {
+      value: 'bar',
+      foo: 'flop'
+    },
+    example: {
+      ids: [
+        {
+          '$ref': '#/foo/value'
+        }, {
+          '$ref': '#/foo/foo'
+        }
+      ]
+    }
+  });
+
+  json.push({
+    foo: {
+      value: 'bar',
+      foo: 'flop'
+    },
+    example: {
+      ids: {
+        '$ref': '#/foo/value/this/does/not/resolve'
+      }
+    }
+  });
+
+  json.push({
+    foo: {
+      "$ref": "./test.json"
+    }
+  });
+
+  json.push({
+    foo: {
+      "$ref": "/this/does/not/exist/test.json"
+    }
+  });
+
+  json.push({
+    foo: {
+      "$ref": "http://json-schema.org/address"
+    }
+  });
+
   for (i = 0, len = json.length; i < len; i++) {
     j = json[i];
-    console.dir(reflite.resolve(j));
+    console.log(JSON.stringify(reflite.resolve(j), null, 2));
   }
 
 }).call(this);
