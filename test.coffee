@@ -51,5 +51,13 @@ json.push
   foo:
     "$ref": "http://json-schema.org/address" 
 
+json.push 
+  foo:
+    "$ref": "http://json-schema.org/address" 
+
+json.push 
+  foo:
+    "$ref": "http://json-schema.org/address#/properties/region" 
+
 for j in json
   console.log JSON.stringify reflite.resolve(j), null, 2

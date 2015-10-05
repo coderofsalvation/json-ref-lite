@@ -3,6 +3,8 @@ request = false
 request = require 'sync-request' if fs.existsSync __dirname+'/node_modules/sync-request'
 
 module.exports = () ->
+
+  @.cache = {}
   
   @.findIds = (json, ids) ->
     id = false; obj = {}
@@ -12,6 +14,12 @@ module.exports = () ->
       @.findIds v, ids if typeof v is 'object' 
     ids[id] = obj if id
 
+  @.get_json_pointer = (ref,root) ->
+    evalstr = ref.replace( /\\\//,'#SLASH#').replace( /\//g, '.' ).replace( /#SLASH#/,'/')
+    evalstr = evalstr.replace /#/,'root'
+    console.log evalstr if process.env.DEBUG?
+    return eval( 'try{'+evalstr+'}catch(e){}')
+
   @.replace = (json, ids, root) ->
     for k,v of json 
       if v['$ref']? 
@@ -19,7 +27,11 @@ module.exports = () ->
         if ids[ ref ]?
           json[k] = ids[ ref ] 
         else if request and String(ref).match /^http/
-          json[k] = JSON.parse request("GET",ref).getBody().toString()
+          @.cache[ref] = JSON.parse request("GET",ref).getBody().toString() if not @.cache[ref]
+          json[k] = @.cache[ref] 
+          if ref.match("#")
+            jsonpointer = ref.replace /.*#/,'#'
+            json[k] = @.get_json_pointer jsonpointer, json[k] if jsonpointer.length 
         else if fs.existsSync ref 
           str = fs.readFileSync(ref).toString()
           if str.match /module\.exports/
@@ -27,9 +39,7 @@ module.exports = () ->
           else 
             json[k] = JSON.parse str
         else if String(ref).match /^#\//
-          evalstr = ref.replace( /\\\//,'#SLASH#').replace( /\//g, '.' ).replace( /#/,'root').replace( /#SLASH#/,'/')
-          console.log evalstr if process.env.DEBUG?
-          json[k] = eval( 'try{'+evalstr+'}catch(e){}')
+          json[k] = @.get_json_pointer ref, json, true
       else
         @.replace v, ids, root if typeof v is 'object' 
 

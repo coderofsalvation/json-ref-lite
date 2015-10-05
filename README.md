@@ -37,6 +37,7 @@ It is extremely useful to use '$ref' keys in json.
 * supports resolving internal jsonpointers ( "$ref": "#/foo/value" )
 * supports resolving local files ( "$ref": "/some/path/test.json" )
 * supports resolving remote json(schema) files ( "$ref": "http://foo.com/person.json" )
+* supports resolving remote jsonpointers: ( "$ref": "http://foo.com/person.json#/address/street" )
 
 ## Example: id fields
 
@@ -91,9 +92,12 @@ outputs:
       foo: {
         "$ref": "http://json-schema.org/address"
       }
+      bar: {
+        "$ref": "http://json-schema.org/address#/street/number"
+      }
     }
 
-outputs: replaces value of foo with jsonresult from given url 
+outputs: replaces value of foo with jsonresult from given url, also supports jsonpointers to remote source
 
 ## Example: local files    
 
