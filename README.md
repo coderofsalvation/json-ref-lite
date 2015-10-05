@@ -38,7 +38,7 @@ It is extremely useful to use '$ref' keys in json.
 * supports resolving local files ( "$ref": "/some/path/test.json" )
 * supports resolving remote json(schema) files ( "$ref": "http://foo.com/person.json" )
 
-# Example: id fields
+## Example: id fields
 
     json = {
       foo: {
@@ -57,7 +57,7 @@ outputs:
       example: { value: 'bar' } 
     }
 
-# Example: jsonpointers
+## Example: jsonpointers
 
     {
       foo: {
@@ -82,6 +82,8 @@ outputs:
         ids: 'flop' 
       }
     }
+
+> NOTE: escaping slashes in keys is supported. `"#/model/foo['\\/bar']/flop"` will try to reference `model.foo['/bar'].flop` from itself 
 
 ## Example: remote schemas
 

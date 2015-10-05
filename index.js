@@ -50,7 +50,11 @@
               results.push(json[k] = JSON.parse(str));
             }
           } else if (String(ref).match(/^#\//)) {
-            evalstr = ref.replace(/\//g, '.').replace(/#/, 'root');
+            evalstr = ref.replace(/\\\//, '#SLASH#').replace(/\//g, '.').replace(/#/, 'root').replace(/#SLASH#/, '/');
+            if (process.env.DEBUG != null) {
+              console.log(evalstr);
+            }
+            process.exit();
             results.push(json[k] = eval('try{' + evalstr + '}catch(e){}'));
           } else {
             results.push(void 0);
