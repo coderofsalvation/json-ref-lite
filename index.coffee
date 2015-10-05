@@ -29,7 +29,6 @@ module.exports = () ->
         else if String(ref).match /^#\//
           evalstr = ref.replace( /\\\//,'#SLASH#').replace( /\//g, '.' ).replace( /#/,'root').replace( /#SLASH#/,'/')
           console.log evalstr if process.env.DEBUG?
-          process.exit()
           json[k] = eval( 'try{'+evalstr+'}catch(e){}')
       else
         @.replace v, ids, root if typeof v is 'object' 

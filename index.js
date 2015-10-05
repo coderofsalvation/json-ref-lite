@@ -54,7 +54,6 @@
             if (process.env.DEBUG != null) {
               console.log(evalstr);
             }
-            process.exit();
             results.push(json[k] = eval('try{' + evalstr + '}catch(e){}'));
           } else {
             results.push(void 0);
