@@ -99,6 +99,8 @@ outputs:
 
 outputs: replaces value of foo with jsonresult from given url, also supports jsonpointers to remote source
 
+> NOTE: please install like so for remote support: 'npm install json-ref-lite sync-request'
+
 ## Example: local files    
 
     {

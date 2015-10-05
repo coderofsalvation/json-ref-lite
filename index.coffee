@@ -1,6 +1,6 @@
 fs    = require 'fs'
 request = false
-request = require 'sync-request' if fs.existsSync __dirname+'/node_modules/sync-request'
+request = require 'sync-request' if fs.existsSync __dirname+'/../sync-request'
 
 module.exports = () ->
 
