@@ -21,7 +21,11 @@ module.exports = () ->
         else if request and String(ref).match /^http/
           json[k] = JSON.parse request("GET",ref).getBody().toString()
         else if fs.existsSync ref 
-          json[k] = JSON.parse fs.readFileSync(ref).toString()
+          str = fs.readFileSync(ref).toString()
+          if str.match /module\.exports/
+            json[k] = require ref
+          else 
+            json[k] = JSON.parse str
         else if String(ref).match /^#\//
           evalstr = ref.replace( /\//g, '.' ).replace( /#/,'root')
           json[k] = eval( 'try{'+evalstr+'}catch(e){}')

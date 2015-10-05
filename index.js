@@ -32,7 +32,7 @@
       }
     };
     this.replace = function(json, ids, root) {
-      var evalstr, k, ref, results, v;
+      var evalstr, k, ref, results, str, v;
       results = [];
       for (k in json) {
         v = json[k];
@@ -43,7 +43,12 @@
           } else if (request && String(ref).match(/^http/)) {
             results.push(json[k] = JSON.parse(request("GET", ref).getBody().toString()));
           } else if (fs.existsSync(ref)) {
-            results.push(json[k] = JSON.parse(fs.readFileSync(ref).toString()));
+            str = fs.readFileSync(ref).toString();
+            if (str.match(/module\.exports/)) {
+              results.push(json[k] = require(ref));
+            } else {
+              results.push(json[k] = JSON.parse(str));
+            }
           } else if (String(ref).match(/^#\//)) {
             evalstr = ref.replace(/\//g, '.').replace(/#/, 'root');
             results.push(json[k] = eval('try{' + evalstr + '}catch(e){}'));
