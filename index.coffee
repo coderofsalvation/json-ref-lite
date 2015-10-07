@@ -39,7 +39,7 @@ module.exports = () ->
           else 
             json[k] = JSON.parse str
         else if String(ref).match /^#\//
-          json[k] = @.get_json_pointer ref, json, true
+          json[k] = @.get_json_pointer ref, root
       else
         @.replace v, ids, root if typeof v is 'object' 
 
