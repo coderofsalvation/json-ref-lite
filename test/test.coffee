@@ -1,4 +1,4 @@
-reflite = require('./index.coffee')() 
+reflite = require 'json-ref-lite'
 
 json = []
 
@@ -59,5 +59,29 @@ json.push
   foo:
     "$ref": "http://json-schema.org/address#/properties/region" 
 
+json.push 
+  bar: ["one","two"]
+  foo:
+    "$ref": "#/bar[1]"
+
+json.push 
+  bar: ["one","two"]
+  length:
+    "$ref": "#/bar.length"
+
+json.push 
+  flop: () -> "hello world"
+  foo:
+    "$ref": "#/flop()"
+
+#json.push                             # this works but fails when printing out (because circular)
+#  node_A:
+#    edges: [{"$ref": "#/node_B"}]
+#  node_B:
+#    edges: [{"$ref": "#/node_A"}]
+#  node_C:
+#    edges: [{"$ref": "#/node_B"}]
+
 for j in json
+  console.log JSON.stringify j, null, 2
   console.log JSON.stringify reflite.resolve(j), null, 2

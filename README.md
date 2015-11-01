@@ -1,11 +1,20 @@
-Extremely light weight module to resolve jsonschema '$ref' references 
+Extremely light weight way to resolve jsonschema '$ref' references or create circular/graph structures (browser/coffeescript/javascript).
 
 This is a zero-dependency module.
-I found similar modules but for some reason they had 10++ dependencies.
+I found similar modules but for many were lacking browsercompatibility and/or had 10++ dependencies.
 
 # Usage
 
-    reflite = require('json-ref-lite')();
+nodejs:
+
+    reflite = require('json-ref-lite')
+
+or in the browser:
+
+    <script type="text/javascript" src="json-ref-lite.min.js"></script>
+    reflite = require('json-ref-lite');
+
+code:
 
     json = {
       foo: {
@@ -35,6 +44,8 @@ It is extremely useful to use '$ref' keys in json.
 
 * supports resolving json references to 'id'-fields ( "$ref": "foobar" )
 * supports resolving internal jsonpointers ( "$ref": "#/foo/value" )
+* supports resolving positional jsonpointers ( "$ref": "#/foo/bar[2]" )
+* supports evaluating positional jsonpointer function ( "$ref": "#/foo/bar()" )
 * supports resolving local files ( "$ref": "/some/path/test.json" )
 * supports resolving remote json(schema) files ( "$ref": "http://foo.com/person.json" )
 * supports resolving remote jsonpointers: ( "$ref": "http://foo.com/person.json#/address/street" )
@@ -110,4 +121,53 @@ outputs: replaces value of foo with jsonresult from given url, also supports jso
     }
 
 outputs: replaces value of foo with contents of file test.json (use './' for current directory).
+
+## Example: array references
+
+    {
+      "bar": ["one","two"],
+      "foo": { "$ref": "#/bar[1]" }
+    }
+
+outputs:
+
+    {
+      "bar": ["one","two"],
+      "foo": "two"
+    }
+
+## Example: evaluating functions 
+
+Ofcoarse functions fall outside the json scope, but they can be executed after
+binding them to the json.
+
+    json = {
+      "bar": { "$ref": "#/foo()" }
+    }
+
+    json.foo = function(){ return "Hello World"; }
+
+outputs:
+
+    {
+      "bar": "Hello World"
+    }
+
+
+## Example: Graphs / Circular structures
+
+Json-ref allows you to build circular/flow structures.
+
+    {
+      "a": { edges: [{"$ref":"#/b"}] },
+      "b": { edges: [{"$ref":"#/a"}] },
+      "c": { edges: [{"$ref":"#/a"}] }
+    }
+
+This resembles the following graph: b<->a<-c
+
+> HINT: Superminimalistic dataflow programming example here [JS](/test/flowprogramming.js) / [CS](/test/flowprogramming.coffee)
+
+There you go.
+
 

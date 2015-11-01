@@ -1,8 +1,10 @@
-fs    = require 'fs'
-request = false
-request = require 'sync-request' if fs.existsSync __dirname+'/../sync-request'
+# slightly odd requires because of browserify compatibility
+fs      = ( if not window? then require 'fs' else false )
+request = ( if fs and fs.existsSync __dirname+'/../sync-request' then require 'sync-request' else false )
 
-module.exports = () ->
+expr    = require 'property-expr'
+
+module.exports = ( () ->
 
   @.cache = {}
   
@@ -16,9 +18,14 @@ module.exports = () ->
 
   @.get_json_pointer = (ref,root) ->
     evalstr = ref.replace( /\\\//,'#SLASH#').replace( /\//g, '.' ).replace( /#SLASH#/,'/')
-    evalstr = evalstr.replace /#/,'root'
-    console.log evalstr if process.env.DEBUG?
-    return eval( 'try{'+evalstr+'}catch(e){}')
+    evalstr = evalstr.replace /#\./,''
+    try
+      console.log evalstr if process.env.DEBUG?
+      result = expr.getter( evalstr )(root)
+    catch err 
+      result = ""
+    return result
+    #return eval( 'try{'+evalstr+'}catch(e){}')
 
   @.replace = (json, ids, root) ->
     for k,v of json 
@@ -32,7 +39,7 @@ module.exports = () ->
           if ref.match("#")
             jsonpointer = ref.replace /.*#/,'#'
             json[k] = @.get_json_pointer jsonpointer, json[k] if jsonpointer.length 
-        else if fs.existsSync ref 
+        else if fs and fs.existsSync ref 
           str = fs.readFileSync(ref).toString()
           if str.match /module\.exports/
             json[k] = require ref
@@ -49,3 +56,5 @@ module.exports = () ->
     return json
 
   return @
+
+)()
