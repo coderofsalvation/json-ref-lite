@@ -29,7 +29,7 @@ module.exports = ( () ->
 
   @.replace = (json, ids, root) ->
     for k,v of json 
-      if v['$ref']? 
+      if v? and v['$ref']? 
         ref = v['$ref']
         if ids[ ref ]?
           json[k] = ids[ ref ] 

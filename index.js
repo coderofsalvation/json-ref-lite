@@ -50,7 +50,7 @@
       results = [];
       for (k in json) {
         v = json[k];
-        if (v['$ref'] != null) {
+        if ((v != null) && (v['$ref'] != null)) {
           ref = v['$ref'];
           if (ids[ref] != null) {
             results.push(json[k] = ids[ref]);
