@@ -31,7 +31,9 @@ module.exports = ( () ->
     for k,v of json 
       if v? and v['$ref']? 
         ref = v['$ref']
-        if ids[ ref ]?
+        if Array.isArray ref
+          ref[x] = @.replace y for x,y in ref
+        else if ids[ ref ]?
           json[k] = ids[ ref ] 
         else if request and String(ref).match /^http/
           @.cache[ref] = JSON.parse request("GET",ref).getBody().toString() if not @.cache[ref]

@@ -46,13 +46,23 @@
       return result;
     };
     this.replace = function(json, ids, root) {
-      var jsonpointer, k, ref, results, str, v;
+      var jsonpointer, k, ref, results, str, v, x, y;
       results = [];
       for (k in json) {
         v = json[k];
         if ((v != null) && (v['$ref'] != null)) {
           ref = v['$ref'];
-          if (ids[ref] != null) {
+          if (Array.isArray(ref)) {
+            results.push((function() {
+              var i, len, results1;
+              results1 = [];
+              for (y = i = 0, len = ref.length; i < len; y = ++i) {
+                x = ref[y];
+                results1.push(ref[x] = this.replace(y));
+              }
+              return results1;
+            }).call(this));
+          } else if (ids[ref] != null) {
             results.push(json[k] = ids[ref]);
           } else if (request && String(ref).match(/^http/)) {
             if (!this.cache[ref]) {

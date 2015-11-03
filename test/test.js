@@ -125,6 +125,22 @@
     }
   });
 
+  json.push({
+    a: {
+      a: true
+    },
+    b: {
+      b: true
+    },
+    "$ref": [
+      {
+        "$ref": "#/a"
+      }, {
+        "$ref": "#/b"
+      }
+    ]
+  });
+
   for (i = 0, len = json.length; i < len; i++) {
     j = json[i];
     console.log(JSON.stringify(j, null, 2));

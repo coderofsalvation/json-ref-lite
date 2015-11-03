@@ -74,6 +74,11 @@ json.push
   foo:
     "$ref": "#/flop()"
 
+json.push
+  a: { a:true }
+  b: { b:true }
+  "$ref": [ {"$ref":"#/a"}, {"$ref":"#/b"} ]
+
 #json.push                             # this works but fails when printing out (because circular)
 #  node_A:
 #    edges: [{"$ref": "#/node_B"}]
