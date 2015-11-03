@@ -40,40 +40,25 @@ Outputs:
 
 Because dont-repeat-yourself (DRY)! 
 It is extremely useful to use '$ref' keys in jsonschema graphs.
-For example in the browser:
+For example here's how to do a multidirected graph:
 
-    graph = 
-      ui:
-        searchresults: {}
-        editscreen:    {}
-      schema:
-        book: 
-          type: "object"
-          properties: { title: { type: "string" } } 
-          "$ref": [ {"$ref":"#/ui/itemdetails"} ]
-        books:
-          type: "array"
-          items: [{"$ref":"#/item"}]
-          "$ref": [ {"$ref":"#/ui/searchresults"} ]
-
-    graph = jsonref.resolve(graph);
-
-    graph.ui.editscreen    = $('form#edit')
-    graph.ui.searchresults = $('div#result')
-    # etc
+      {
+        "a": { "$ref": [{"$ref":"#/b"}]           },
+        "b": { "$ref": [{"$ref": [{"$ref":"#/a"}] }
+      }
 
 > NOTE: for more functionality checkout [jsongraph](https://npmjs.org/packages/jsongraph)
 
 # Features 
 
-* supports resolving json references to 'id'-fields ( "$ref": "foobar" )
-* supports resolving internal jsonpointers ( "$ref": "#/foo/value" )
-* supports resolving positional jsonpointers ( "$ref": "#/foo/bar[2]" )
-* supports resolving grouped jsonpointers ( "$ref": [{"$ref":"#/foo"},{"$ref":"#/bar}] ) for building jsongraph
-* supports evaluating positional jsonpointer function ( "$ref": "#/foo/bar()" )
-* supports resolving local files ( "$ref": "/some/path/test.json" )
-* supports resolving remote json(schema) files ( "$ref": "http://foo.com/person.json" )
-* supports resolving remote jsonpointers: ( "$ref": "http://foo.com/person.json#/address/street" )
+* supports resolving json references to 'id'-fields ( `"$ref": "foobar"` )
+* supports resolving internal jsonpointers ( `"$ref": "#/foo/value"` )
+* supports resolving positional jsonpointers ( `"$ref": "#/foo/bar[2]"` )
+* supports resolving grouped jsonpointers ( `"$ref": [{"$ref":"#/foo"},{"$ref":"#/bar}]` ) for building jsongraph
+* supports evaluating positional jsonpointer function ( `"$ref": "#/foo/bar()"` )
+* supports resolving local files ( `"$ref": "/some/path/test.json"` )
+* supports resolving remote json(schema) files ( `"$ref": "http://foo.com/person.json"` )
+* supports resolving remote jsonpointers: ( `"$ref": "http://foo.com/person.json#/address/street"` )
 
 > NOTE: for more functionality checkout [jsongraph](https://npmjs.org/packages/jsongraph)
 

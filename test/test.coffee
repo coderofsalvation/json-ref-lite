@@ -1,4 +1,5 @@
 reflite = require 'json-ref-lite'
+util = require 'util'
 
 json = []
 
@@ -79,6 +80,12 @@ json.push
   b: { b:true }
   "$ref": [ {"$ref":"#/a"}, {"$ref":"#/b"} ]
 
+json.push
+  a:
+    "$ref": [{"$ref":"#/b"}]
+  b:
+    "$ref": [{"$ref":"#/a"}]
+
 #json.push                             # this works but fails when printing out (because circular)
 #  node_A:
 #    edges: [{"$ref": "#/node_B"}]
@@ -89,4 +96,4 @@ json.push
 
 for j in json
   console.log JSON.stringify j, null, 2
-  console.log JSON.stringify reflite.resolve(j), null, 2
+  console.log util.inspect reflite.resolve(j), {showHidden: false, depth: 5}

@@ -32,7 +32,7 @@ module.exports = ( () ->
       if v? and v['$ref']? 
         ref = v['$ref']
         if Array.isArray ref
-          ref[x] = @.replace y for x,y in ref
+          ref = @.replace ref, ids, root 
         else if ids[ ref ]?
           json[k] = ids[ ref ] 
         else if request and String(ref).match /^http/
@@ -50,7 +50,7 @@ module.exports = ( () ->
         else if String(ref).match /^#\//
           json[k] = @.get_json_pointer ref, root
       else
-        @.replace v, ids, root if typeof v is 'object' 
+        @.replace v, ids, root if typeof v is 'object'
 
   @.resolve = (json) ->
     ids = {}; @.findIds json, ids
