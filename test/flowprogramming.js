@@ -12,7 +12,7 @@
     var edge, i, len, ref, result, results;
     result = node.process(data);
     if (result) {
-      ref = node.edges;
+      ref = node["$ref"];
       results = [];
       for (i = 0, len = ref.length; i < len; i++) {
         edge = ref[i];
@@ -24,7 +24,7 @@
 
   json = {
     a: {
-      edges: [
+      "$ref": [
         {
           "$ref": "#/b"
         }
@@ -35,7 +35,7 @@
       }
     },
     b: {
-      edges: [
+      "$ref": [
         {
           "$ref": "#/a"
         }
@@ -48,7 +48,7 @@
       }
     },
     c: {
-      edges: [
+      "$ref": [
         {
           "$ref": "#/a"
         }
@@ -68,5 +68,7 @@
   processNode(graph.c, {
     foo: "bar"
   });
+
+  console.log("for a more advanced example see https://npmjs.org/packages/jsongraph");
 
 }).call(this);

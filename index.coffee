@@ -1,8 +1,8 @@
 # slightly odd requires because of browserify compatibility
 fs      = ( if not window? then require 'fs' else false )
 request = ( if fs and fs.existsSync __dirname+'/../sync-request' then require 'sync-request' else false )
-
 expr    = require 'property-expr'
+clone   = (obj) -> JSON.parse JSON.stringify obj
 
 module.exports = ( () ->
 
@@ -57,6 +57,34 @@ module.exports = ( () ->
     @.replace json, ids, json
     return json
 
+  @.evaluate = (json,data,cb) ->
+    cb = @.evaluateStr if not cb?
+    for k,v of clone json 
+      json[k] = cb v,data if typeof v is 'string'
+      json[k] = @.evaluate v,data if typeof v is 'object'
+    return json
+
+  @.evaluateStr = (k,data) ->
+    return k if typeof k != 'string'
+    itemstr = k.replace /(\{)(.*?)(\})/g, ($0,$1,$2) -> 
+      result = '' ; 
+      return result if not data? or not $2?
+      if data[$2]? and typeof data[$2] == 'function'
+        result = data[$2]()
+      else 
+        if data[$2]?
+          result = data[$2] 
+        else
+          try
+            $2 = $2.replace(/^#\//,'').replace(/\//g,'.') # convert jsonpath to normal path
+            result = expr.getter( $2 )(data)
+          catch err
+            result = ''
+          result = '' if not result?
+      @.evaluateStr result, data
+      return result
+    return itemstr
+  
   return @
 
 )()

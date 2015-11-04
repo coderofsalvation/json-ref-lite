@@ -1,5 +1,4 @@
 reflite = require 'json-ref-lite'
-util = require 'util'
 
 json = []
 
@@ -75,6 +74,10 @@ json.push
   foo:
     "$ref": "#/flop()"
 
+for j in json
+  console.log JSON.stringify j, null, 2
+  console.log JSON.stringify reflite.resolve(j),null,2
+
 json.push
   a: { a:true }
   b: { b:true }
@@ -93,6 +96,7 @@ json.push
 #    edges: [{"$ref": "#/node_A"}]
 #  node_C:
 #    edges: [{"$ref": "#/node_B"}]
+util = require 'util'
 
 for j in json
   console.log JSON.stringify j, null, 2

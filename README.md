@@ -51,14 +51,19 @@ For example here's how to do a multidirected graph:
 
 # Features 
 
-* supports resolving json references to 'id'-fields ( `"$ref": "foobar"` )
-* supports resolving internal jsonpointers ( `"$ref": "#/foo/value"` )
-* supports resolving positional jsonpointers ( `"$ref": "#/foo/bar[2]"` )
-* supports resolving grouped jsonpointers ( `"$ref": [{"$ref":"#/foo"},{"$ref":"#/bar}]` ) for building jsongraph
-* supports evaluating positional jsonpointer function ( `"$ref": "#/foo/bar()"` )
-* supports resolving local files ( `"$ref": "/some/path/test.json"` )
-* supports resolving remote json(schema) files ( `"$ref": "http://foo.com/person.json"` )
-* supports resolving remote jsonpointers: ( `"$ref": "http://foo.com/person.json#/address/street"` )
+| Feature                                             | Notation                                                               |
+|-----------------------------------------------------|------------------------------------------------------------------------|
+|resolving (old) jsonschema references to 'id'-fields | `"$ref": "foobar"`                                                     |
+|resolving (new) jsonschema internal jsonpointers     | `"$ref": "#/foo/value"`                                                |
+|resolving positional jsonpointers                    | `"$ref": "#/foo/bar[2]"`                                               |
+|resolving grouped jsonpointers                       | `"$ref": [{"$ref": "#/foo"},{"$ref": "#/bar}]` for building jsongraphs |
+|evaluating positional jsonpointer function           | `"$ref": "#/foo/bar()"`                                                |
+|resolving local files                                | `"$ref": "/some/path/test.json"`                                       |
+|resolving remote json(schema) files                  | `"$ref": "http://foo.com/person.json"`                                 |
+|resolving remote jsonpointers                        | `"$ref": "http://foo.com/person.json#/address/street"`                 |
+|evaluating jsonpointer notation in string            | `foo_{#/a/graph/value}`                                                |
+|evaluating dot-notation in string                    | `foo_{a.graph.value}`                                                  |
+
 
 > NOTE: for more functionality checkout [jsongraph](https://npmjs.org/packages/jsongraph)
 
@@ -181,6 +186,73 @@ This resembles the following graph: b<->a<-c
 > HINT: Superminimalistic dataflow programming example here [JS](/test/flowprogramming.js) / [CS](/test/flowprogramming.coffee)
 
 There you go.
+
+## Example: evaluating data into graph
+
+Process graph-values into strings:
+
+    data = 
+      boss: {name:"John"}
+      employee: {name:"Matt"}
+
+    template = jref.resolve 
+      boss:
+        name: "{boss.name}"
+      employee:
+        name: "{#/employee/name}"
+      names: [{"$ref":"#/boss/name"},{"$ref":"#/employee/name"}]
+
+    graph = jref.evaluate template, data # !!! (k,v) -> return v
+
+    console.log JSON.stringify graph, null, 2
+
+> Note #1: you can override the evaluator with your own by adding a function as third argument. See the '!!' comment 
+> Note #2: both jsonpointer notation `foo_{#/a/graph/value}` as well as dot-notation is allowed `foo_{a.graph.value}`
+
+## Example: restgraph client or server using jsonschema
+
+CRUD operations in javascript without dealing with the underlying rest interface:
+
+    graph = jref.resolve
+      searchquery:
+        type: "object"
+        properties:
+          category: { type: "string", default:'' }
+          query:    { type: "string", default:'' }
+      books:
+        type: "array"
+        books: [{"$ref":"#/book"}]
+        data:
+          get:
+            config:
+              method: 'get'
+              url: '/books'
+              payload:
+                category: '{#/searchquery/properties/category/value}'
+                query: '{#/searchquery/properties/query/value}'
+            data: "{response.data}"
+      book:
+        type: "object"
+        properties:
+          id: { type:"number", default: 12 }
+          name: { type: "string", default: 'John Doe' }
+          category: { type: "string", default: 'amsterdam' }
+
+    ....(see full source for uncut jsonschema)....
+
+    rg = restgraph.create(graph)
+
+    # set user input
+    rg.get('searchquery').query.value = "foo"
+    rg.get('searchquery').category.value = "scifi"
+
+    # get items
+    graph.items.data.get (data) ->
+      # do something with data 
+
+This could be used to allow server and/or clients to share the same rest-specs.
+
+> NOTE: see full source here: [coffeescript](/test/restgraph.coffee) / [javascript](/test/restgraph.js)      
 
 # Philosophy
 
