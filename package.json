@@ -1,6 +1,6 @@
 {
   "name": "json-ref-lite",
-  "version": "1.0.65",
+  "version": "1.0.67",
   "description": "Extremely light weight module to resolve jsonschema '$ref' references (many variants: remote, local, jsonpointer, circular/graph structures, function evaluation)",
   "main": "index.js",
   "dependencies": {

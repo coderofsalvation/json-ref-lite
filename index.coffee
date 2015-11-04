@@ -2,7 +2,7 @@
 fs      = ( if not window? then require 'fs' else false )
 request = ( if fs and fs.existsSync __dirname+'/../sync-request' then require 'sync-request' else false )
 expr    = require 'property-expr'
-clone   = (obj) -> JSON.parse JSON.stringify obj
+clone   = (obj) -> ( if typeof obj is 'object' then JSON.parse JSON.stringify obj else {} )
 
 module.exports = ( () ->
 
@@ -66,24 +66,27 @@ module.exports = ( () ->
 
   @.evaluateStr = (k,data) ->
     return k if typeof k != 'string'
-    itemstr = k.replace /(\{)(.*?)(\})/g, ($0,$1,$2) -> 
-      result = '' ; 
-      return result if not data? or not $2?
-      if data[$2]? and typeof data[$2] == 'function'
-        result = data[$2]()
-      else 
-        if data[$2]?
-          result = data[$2] 
-        else
-          try
-            $2 = $2.replace(/^#\//,'').replace(/\//g,'.') # convert jsonpath to normal path
-            result = expr.getter( $2 )(data)
-          catch err
-            result = ''
-          result = '' if not result?
-      @.evaluateStr result, data
-      return result
-    return itemstr
+    if k[0] is '{' and k[k.length-1] is '}'
+      return expr.getter( k.replace(/^{/,'').replace(/}$/,'') )(data)
+    else
+      itemstr = k.replace /(\{)(.*?)(\})/g, ($0,$1,$2) -> 
+        result = '' ; 
+        return result if not data? or not $2?
+        if data[$2]? and typeof data[$2] == 'function'
+          result = data[$2]()
+        else 
+          if data[$2]?
+            result = data[$2] 
+          else
+            try
+              $2 = $2.replace(/^#\//,'').replace(/\//g,'.') # convert jsonpath to normal path
+              result = expr.getter( $2 )(data)
+            catch err
+              result = ''
+            result = '' if not result?
+        @.evaluateStr result, data
+        return result
+      return itemstr
   
   return @
 

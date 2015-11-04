@@ -9,7 +9,11 @@
   expr = require('property-expr');
 
   clone = function(obj) {
-    return JSON.parse(JSON.stringify(obj));
+    if (typeof obj === 'object') {
+      return JSON.parse(JSON.stringify(obj));
+    } else {
+      return {};
+    }
   };
 
   module.exports = (function() {
@@ -126,34 +130,38 @@
       if (typeof k !== 'string') {
         return k;
       }
-      itemstr = k.replace(/(\{)(.*?)(\})/g, function($0, $1, $2) {
-        var err, result;
-        result = '';
-        if ((data == null) || ($2 == null)) {
-          return result;
-        }
-        if ((data[$2] != null) && typeof data[$2] === 'function') {
-          result = data[$2]();
-        } else {
-          if (data[$2] != null) {
-            result = data[$2];
+      if (k[0] === '{' && k[k.length - 1] === '}') {
+        return expr.getter(k.replace(/^{/, '').replace(/}$/, ''))(data);
+      } else {
+        itemstr = k.replace(/(\{)(.*?)(\})/g, function($0, $1, $2) {
+          var err, result;
+          result = '';
+          if ((data == null) || ($2 == null)) {
+            return result;
+          }
+          if ((data[$2] != null) && typeof data[$2] === 'function') {
+            result = data[$2]();
           } else {
-            try {
-              $2 = $2.replace(/^#\//, '').replace(/\//g, '.');
-              result = expr.getter($2)(data);
-            } catch (_error) {
-              err = _error;
-              result = '';
-            }
-            if (result == null) {
-              result = '';
+            if (data[$2] != null) {
+              result = data[$2];
+            } else {
+              try {
+                $2 = $2.replace(/^#\//, '').replace(/\//g, '.');
+                result = expr.getter($2)(data);
+              } catch (_error) {
+                err = _error;
+                result = '';
+              }
+              if (result == null) {
+                result = '';
+              }
             }
           }
-        }
-        this.evaluateStr(result, data);
-        return result;
-      });
-      return itemstr;
+          this.evaluateStr(result, data);
+          return result;
+        });
+        return itemstr;
+      }
     };
     return this;
   })();
