@@ -40,6 +40,8 @@ Outputs:
 
 Because dont-repeat-yourself (DRY)! 
 It is extremely useful to use '$ref' keys in jsonschema graphs.
+Instead of writing manual REST-api gluecode, you can build a restgraph client & server.
+
 For example here's how to do a multidirected graph:
 
       {
@@ -47,7 +49,7 @@ For example here's how to do a multidirected graph:
         "b": { "$ref": [{"$ref": [{"$ref":"#/a"}] }
       }
 
-> NOTE: for more functionality checkout [jsongraph](https://npmjs.org/packages/jsongraph)
+> NOTE: for flowprogramming with json-ref-lite see [jsongraph](https://npmjs.org/packages/jsongraph)
 
 # Features 
 
@@ -209,9 +211,11 @@ Process graph-values into strings:
 > Note #1: you can override the evaluator with your own by adding a function as third argument. See the '!!' comment 
 > Note #2: both jsonpointer notation `foo_{#/a/graph/value}` as well as dot-notation is allowed `foo_{a.graph.value}`
 
-## Example: restgraph client or server using jsonschema
+## Example: restgraph using jsonschema
 
-CRUD operations in javascript without dealing with the underlying rest interface:
+CRUD operations in server/client without dealing with the underlying rest interface?
+
+### the graph 
 
     graph = jref.resolve
       searchquery:
@@ -238,7 +242,18 @@ CRUD operations in javascript without dealing with the underlying rest interface
           name: { type: "string", default: 'John Doe' }
           category: { type: "string", default: 'amsterdam' }
 
-    ....(see full source for uncut jsonschema)....
+    ....etc....
+
+### the server
+
+    for node,v of graph
+      ( for method,u of v.data
+        server[method] graph[node].data[method].config.url, (req, res, next) ->
+          res.send "hello world..need some database bindingcode here"
+          next();
+      ) if v.data?
+
+### the client
 
     rg = restgraph.create(graph)
 
@@ -248,17 +263,17 @@ CRUD operations in javascript without dealing with the underlying rest interface
 
     # get items
     graph.items.data.get (data) ->
-      # do something with data 
+      # do something with data, now we add a duplicate
+      book = data[0]
+      delete book.id
+      book.post()
 
 This could be used to allow server and/or clients to share the same rest-specs.
 
-> NOTE: see full source here: [coffeescript](/test/restgraph.coffee) / [javascript](/test/restgraph.js)      
+> NOTE: see a minimal examplesource here: [coffeescript](/test/restgraph.coffee) / [javascript](/test/restgraph.js)      
 
 # Philosophy
 
 * This is a zero-dependency module.
-* should be isomorphic 
-
-I found similar modules but for many were lacking browsercompatibility and/or had 10++ dependencies.
-
-
+* isomorphic is cool
+* pistachio icecream is nice
