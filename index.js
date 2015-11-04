@@ -131,7 +131,11 @@
         return k;
       }
       if (k[0] === '{' && k[k.length - 1] === '}') {
-        return expr.getter(k.replace(/^{/, '').replace(/}$/, ''))(data);
+        try {
+          return expr.getter(k.replace(/^{/, '').replace(/}$/, ''))(data);
+        } catch (_error) {
+          return null;
+        }
       } else {
         itemstr = k.replace(/(\{)(.*?)(\})/g, function($0, $1, $2) {
           var err, result;

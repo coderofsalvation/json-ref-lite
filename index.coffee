@@ -67,7 +67,9 @@ module.exports = ( () ->
   @.evaluateStr = (k,data) ->
     return k if typeof k != 'string'
     if k[0] is '{' and k[k.length-1] is '}'
-      return expr.getter( k.replace(/^{/,'').replace(/}$/,'') )(data)
+      try return expr.getter( k.replace(/^{/,'').replace(/}$/,'') )(data)
+      catch
+        return null
     else
       itemstr = k.replace /(\{)(.*?)(\})/g, ($0,$1,$2) -> 
         result = '' ; 
