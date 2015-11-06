@@ -1,4 +1,4 @@
-reflite = require 'json-ref-lite'
+jref = require 'json-ref-lite'
 
 json = []
 
@@ -76,10 +76,10 @@ json.push
 
 for j in json
   console.log JSON.stringify j, null, 2
-  console.log JSON.stringify reflite.resolve(j),null,2
+  console.log JSON.stringify jref.resolve(j),null,2
 
-reflite.reftoken  = '@ref'
-reflite.pathtoken = '@'
+jref.reftoken  = '@ref'
+jref.pathtoken = '@'
 json = []
 json.push 
   flop: () -> "hello at world"
@@ -87,23 +87,32 @@ json.push
 
 for j in json
   console.log JSON.stringify j, null, 2
-  console.log JSON.stringify reflite.resolve(j),null,2
+  console.log JSON.stringify jref.resolve(j),null,2
+
+json = []
+jref.debug = false
+json.push 
+  flo: {fla:"hello at world"}
+  one:
+    "@ref": [{"@ref": "@flo/fla"}]
+    two:
+      "@ref": [{"@ref": "@/flo/fla"}]
+
+for j in json
+  console.log JSON.stringify j, null, 2
+  console.log "expecting next line to be error:"
+  console.log JSON.stringify jref.resolve(j),null,2
 
 if not window?
-
-  reflite.reftoken = '$ref'
-  reflite.pathtoken = '#'
+  util = require 'util'
+  jref.reftoken = '$ref'
+  jref.pathtoken = '#'
   json = []
   json.push
     a: { a:true }
     b: { b:true }
     "$ref": [ {"$ref":"#/a"}, {"$ref":"#/b"} ]
 
-  json.push
-    a:
-      "$ref": [{"$ref":"#/b"}]
-    b:
-      "$ref": [{"$ref":"#/a"}]
 
   #json.push                             # this works but fails when printing out (because circular)
   #  node_A:
@@ -112,8 +121,18 @@ if not window?
   #    edges: [{"$ref": "#/node_A"}]
   #  node_C:
   #    edges: [{"$ref": "#/node_B"}]
-  util = require 'util'
 
   for j in json
     console.log JSON.stringify j, null, 2
-    console.log util.inspect reflite.resolve(j), {showHidden: false, depth: 5}
+    console.log util.inspect jref.resolve(j), {showHidden: false, depth: 5}
+
+  json = []
+  json.push
+    a:
+      "$ref": [{"$ref":"#/b"}]
+    b:
+      "$ref": [{"$ref":"#/a"}]
+
+  for j in json
+    console.log JSON.stringify j, null, 2
+    console.log util.inspect jref.resolve(j), {showHidden: false, depth: 5}

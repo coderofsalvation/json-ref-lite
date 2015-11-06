@@ -15,16 +15,34 @@ or in the browser:
     <script type="text/javascript" src="json-ref-lite.min.js"></script>
     jref = require('json-ref-lite');
 
-code:
+For example here's how to do a multidirected graph:
+
+      json = {
+        "a": { "$ref": [{"$ref":"#/b"}]           },
+        "b": { "$ref": [{"$ref": [{"$ref":"#/a"}] }
+      }
+      console.dir(jref.resolve(json));
+
+outputs:
+
+      { a: { '$ref': [ { '$ref': [ [Circular] ] } ] },
+        b: { '$ref': [ { '$ref': [ [Circular] ] } ] } }
+
+> NOTE #1: for flowprogramming with json-ref-lite see [jsongraph](https://npmjs.org/packages/jsongraph)
+> NOTE #2: for converting a restful service to server/client graph see [ohmygraph](https://npmjs.org/packages/ohmygraph)
+
+# Resolve Jsonschema v1/2/3 references
+
+json-ref-lite resolves newer, older jsonschema reference notations, as well as simple dotstyle:
 
     json = {
       foo: {
         id: 'foobar',
         value: 'bar'
       },
-      example: {
-        '$ref': 'foobar'
-      }
+      old: { '$ref': 'foobar'      }
+      new: { '$ref': '#/foo/id'    }
+      dotstyle: { '$ref': '#foo.id' } 
     };
 
     console.dir(jref.resolve(json));
@@ -33,7 +51,9 @@ Outputs:
 
     { 
       foo: { id: 'foobar', value: 'bar' },
-      example: { value: 'bar' } 
+      old: { value: 'bar' },
+      new: 'foobar',
+      dotstyle: 'foobar',
     }
 
 # Why?
@@ -42,15 +62,9 @@ Because dont-repeat-yourself (DRY)!
 It is extremely useful to use '$ref' keys in jsonschema graphs.
 Instead of writing manual REST-api gluecode, you can build a restgraph client & server.
 
-For example here's how to do a multidirected graph:
+# Rule of thumb
 
-      {
-        "a": { "$ref": [{"$ref":"#/b"}]           },
-        "b": { "$ref": [{"$ref": [{"$ref":"#/a"}] }
-      }
-
-> NOTE #1: for flowprogramming with json-ref-lite see [jsongraph](https://npmjs.org/packages/jsongraph)
-> NOTE #2: for converting a restful service to server/client graph see [ohmygraph](https://npmjs.org/packages/ohmygraph)
+When referencing to keys, always use underscores. Not doing this will not resolve references correctly.
 
 # Features 
 
@@ -66,9 +80,14 @@ For example here's how to do a multidirected graph:
 |resolving remote jsonpointers                        | `"$ref": "http://foo.com/person.json#/address/street"`                 |
 |evaluating jsonpointer notation in string            | `foo_{#/a/graph/value}`                                                |
 |evaluating dot-notation in string                    | `foo_{a.graph.value}`                                                  |
+
+Developer tools:
+
+| Feature                                             | Howto                                                                  |
+|-----------------------------------------------------|------------------------------------------------------------------------|
+|console.log debug output                             | `jref.debug = true`                                                    |
 |define ref token                                     | `jref.reftoken = '@ref'`                                               |
 |define jsonpointer starttoken                        | `jref.pathtoken = '#'`                                                 |
-
 
 > NOTE: re-defining tokens is useful to prevent resolving only certain references. A possible rule of thumb could be to have '$ref' references for serverside, and '@ref' references for clientside when resolving the same jsondata.
 

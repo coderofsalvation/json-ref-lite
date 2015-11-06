@@ -1,6 +1,6 @@
 {
   "name": "json-ref-lite",
-  "version": "1.0.69",
+  "version": "1.0.71",
   "description": "Extremely light weight module to resolve jsonschema '$ref' references (many variants: remote, local, jsonpointer, circular/graph structures, function evaluation)",
   "main": "index.js",
   "dependencies": {
@@ -20,8 +20,7 @@
     "url": "https://github.com/coderofsalvation/json-ref-lite/issues"
   },
   "scripts":{
-    "browser": "/bin/bash -c 'coffee -c *.coffee test/*.coffee && browserify -r .:json-ref-lite > json-ref-lite.min.js'",
-    "browser.min": "/bin/bash -c 'coffee -c *.coffee test/*.coffee && browserify -r .:json-ref-lite | uglifyjs -o json-ref-lite.min.js'"
+    "browser": "/bin/bash -c 'coffee -c *.coffee test/*.coffee && browserify -r .:json-ref-lite | uglifyjs -o json-ref-lite.min.js'"
   },
   "browser":{
     "sync-request":false,

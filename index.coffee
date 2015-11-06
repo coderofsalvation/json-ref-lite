@@ -9,6 +9,7 @@ module.exports = ( () ->
   @.cache = {}
   @.reftoken = '$ref'
   @.pathtoken = "#"
+  @.debug = false
   
   @.findIds = (json, ids) ->
     id = false; obj = {}
@@ -20,9 +21,10 @@ module.exports = ( () ->
 
   @.get_json_pointer = (ref,root) ->
     evalstr = ref.replace( /\\\//,'#SLASH#').replace( /\//g, '.' ).replace( /#SLASH#/,'/')
-    evalstr = evalstr.replace new RegExp(@.pathtoken+'\.'),''
+    evalstr = evalstr.replace new RegExp('^'+@.pathtoken),''
+    evalstr = evalstr.substr(1, evalstr.length-1) if evalstr[0] is '.'
     try
-      console.log evalstr if process.env.DEBUG?
+      console.log "evaluating '"+evalstr+"'" if @.debug
       result = expr.getter( evalstr )(root)
     catch err 
       result = ""
@@ -31,10 +33,14 @@ module.exports = ( () ->
 
   @.replace = (json, ids, root) ->
     for k,v of json 
+      console.log "checking "+k if @.debug and typeof ref is 'string'
       if v? and v[reftoken]? 
         ref = v[reftoken]
+        console.log "checking "+k+" -> "+ref if @.debug and typeof ref is 'string'
+        if Object.keys(v).length > 1 
+          console.error "json-ref-lite error: object '#{k}' contains reference as well as other properties..ignoring properties" 
         if Array.isArray ref
-          ref = @.replace ref, ids, root 
+          ref = @.replace ref, ids, root
         else if ids[ ref ]?
           json[k] = ids[ ref ] 
         else if request and String(ref).match /^http/
@@ -50,12 +56,15 @@ module.exports = ( () ->
           else 
             json[k] = JSON.parse str
         else if String(ref).match new RegExp('^'+@.pathtoken)
+          console.log "checking "+ref+" pathtoken" if @.debug
           json[k] = @.get_json_pointer ref, root
+        console.log ref+" reference not found" if json[k].length == 0 and @.debug
       else
         @.replace v, ids, root if typeof v is 'object'
 
   @.resolve = (json) ->
     ids = {}; @.findIds json, ids
+    console.dir ids if @.debug and Object.keys(ids).length
     @.replace json, ids, json
     return json
 

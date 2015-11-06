@@ -20,6 +20,7 @@
     this.cache = {};
     this.reftoken = '$ref';
     this.pathtoken = "#";
+    this.debug = false;
     this.findIds = function(json, ids) {
       var id, k, obj, v;
       id = false;
@@ -43,10 +44,13 @@
     this.get_json_pointer = function(ref, root) {
       var err, error, evalstr, result;
       evalstr = ref.replace(/\\\//, '#SLASH#').replace(/\//g, '.').replace(/#SLASH#/, '/');
-      evalstr = evalstr.replace(new RegExp(this.pathtoken + '\.'), '');
+      evalstr = evalstr.replace(new RegExp('^' + this.pathtoken), '');
+      if (evalstr[0] === '.') {
+        evalstr = evalstr.substr(1, evalstr.length - 1);
+      }
       try {
-        if (process.env.DEBUG != null) {
-          console.log(evalstr);
+        if (this.debug) {
+          console.log("evaluating '" + evalstr + "'");
         }
         result = expr.getter(evalstr)(root);
       } catch (error) {
@@ -60,12 +64,21 @@
       results = [];
       for (k in json) {
         v = json[k];
+        if (this.debug && typeof ref === 'string') {
+          console.log("checking " + k);
+        }
         if ((v != null) && (v[reftoken] != null)) {
           ref = v[reftoken];
+          if (this.debug && typeof ref === 'string') {
+            console.log("checking " + k + " -> " + ref);
+          }
+          if (Object.keys(v).length > 1) {
+            console.error("json-ref-lite error: object '" + k + "' contains reference as well as other properties..ignoring properties");
+          }
           if (Array.isArray(ref)) {
-            results.push(ref = this.replace(ref, ids, root));
+            ref = this.replace(ref, ids, root);
           } else if (ids[ref] != null) {
-            results.push(json[k] = ids[ref]);
+            json[k] = ids[ref];
           } else if (request && String(ref).match(/^http/)) {
             if (!this.cache[ref]) {
               this.cache[ref] = JSON.parse(request("GET", ref).getBody().toString());
@@ -74,22 +87,24 @@
             if (ref.match(this.pathtoken)) {
               jsonpointer = ref.replace(new RegExp(".*" + pathtoken), this.pathtoken);
               if (jsonpointer.length) {
-                results.push(json[k] = this.get_json_pointer(jsonpointer, json[k]));
-              } else {
-                results.push(void 0);
+                json[k] = this.get_json_pointer(jsonpointer, json[k]);
               }
-            } else {
-              results.push(void 0);
             }
           } else if (fs && fs.existsSync(ref)) {
             str = fs.readFileSync(ref).toString();
             if (str.match(/module\.exports/)) {
-              results.push(json[k] = require(ref));
+              json[k] = require(ref);
             } else {
-              results.push(json[k] = JSON.parse(str));
+              json[k] = JSON.parse(str);
             }
           } else if (String(ref).match(new RegExp('^' + this.pathtoken))) {
-            results.push(json[k] = this.get_json_pointer(ref, root));
+            if (this.debug) {
+              console.log("checking " + ref + " pathtoken");
+            }
+            json[k] = this.get_json_pointer(ref, root);
+          }
+          if (json[k].length === 0 && this.debug) {
+            results.push(console.log(ref + " reference not found"));
           } else {
             results.push(void 0);
           }
@@ -107,6 +122,9 @@
       var ids;
       ids = {};
       this.findIds(json, ids);
+      if (this.debug && Object.keys(ids).length) {
+        console.dir(ids);
+      }
       this.replace(json, ids, json);
       return json;
     };
