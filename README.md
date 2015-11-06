@@ -8,12 +8,12 @@ Dont think trees, think jsongraph, think graphmorphic applications.
 
 nodejs:
 
-    reflite = require('json-ref-lite')
+    jref = require('json-ref-lite')
 
 or in the browser:
 
     <script type="text/javascript" src="json-ref-lite.min.js"></script>
-    reflite = require('json-ref-lite');
+    jref = require('json-ref-lite');
 
 code:
 
@@ -27,7 +27,7 @@ code:
       }
     };
 
-    console.dir(reflite.resolve(json));
+    console.dir(jref.resolve(json));
 
 Outputs:
 
@@ -49,7 +49,8 @@ For example here's how to do a multidirected graph:
         "b": { "$ref": [{"$ref": [{"$ref":"#/a"}] }
       }
 
-> NOTE: for flowprogramming with json-ref-lite see [jsongraph](https://npmjs.org/packages/jsongraph)
+> NOTE #1: for flowprogramming with json-ref-lite see [jsongraph](https://npmjs.org/packages/jsongraph)
+> NOTE #2: for converting a restful service to server/client graph see [ohmygraph](https://npmjs.org/packages/ohmygraph)
 
 # Features 
 
@@ -65,9 +66,11 @@ For example here's how to do a multidirected graph:
 |resolving remote jsonpointers                        | `"$ref": "http://foo.com/person.json#/address/street"`                 |
 |evaluating jsonpointer notation in string            | `foo_{#/a/graph/value}`                                                |
 |evaluating dot-notation in string                    | `foo_{a.graph.value}`                                                  |
+|define ref token                                     | `jref.reftoken = '@ref'`                                               |
+|define jsonpointer starttoken                        | `jref.pathtoken = '#'`                                                 |
 
 
-> NOTE: for more functionality checkout [jsongraph](https://npmjs.org/packages/jsongraph)
+> NOTE: re-defining tokens is useful to prevent resolving only certain references. A possible rule of thumb could be to have '$ref' references for serverside, and '@ref' references for clientside when resolving the same jsondata.
 
 ## Example: id fields
 
@@ -178,14 +181,16 @@ outputs:
 Json-ref allows you to build circular/flow structures.
 
     {
-      "a": { edges: [{"$ref":"#/b"}] },
-      "b": { edges: [{"$ref":"#/a"}] },
-      "c": { edges: [{"$ref":"#/a"}] }
+      "a": { "$ref": [{"$ref":"#/b"}] },
+      "b": { "$ref": [{"$ref":"#/a"}] },
+      "c": { "$ref": [{"$ref":"#/a"}] }
     }
 
 This resembles the following graph: b<->a<-c
 
-> HINT: Superminimalistic dataflow programming example here [JS](/test/flowprogramming.js) / [CS](/test/flowprogramming.coffee)
+See superminimalistic dataflow programming example here [JS](/test/flowprogramming.js) / [CS](/test/flowprogramming.coffee)
+
+> HINT: But hey, since you're reading this, why not use [jsongraph](https://npmjs.org/packages/jsongraph) instead?
 
 There you go.
 
@@ -214,63 +219,7 @@ Process graph-values into strings:
 ## Example: restgraph using jsonschema
 
 CRUD operations in server/client without dealing with the underlying rest interface?
-
-### the graph 
-
-    graph = jref.resolve
-      searchquery:
-        type: "object"
-        properties:
-          category: { type: "string", default:'' }
-          query:    { type: "string", default:'' }
-      books:
-        type: "array"
-        books: [{"$ref":"#/book"}]
-        data:
-          get:
-            config:
-              method: 'get'
-              url: '/books'
-              payload:
-                category: '{#/searchquery/properties/category/value}'
-                query: '{#/searchquery/properties/query/value}'
-            data: "{response.data}"
-      book:
-        type: "object"
-        properties:
-          id: { type:"number", default: 12 }
-          name: { type: "string", default: 'John Doe' }
-          category: { type: "string", default: 'amsterdam' }
-
-    ....etc....
-
-### the server
-
-    for node,v of graph
-      ( for method,u of v.data
-        server[method] graph[node].data[method].config.url, (req, res, next) ->
-          res.send "hello world..need some database bindingcode here"
-          next();
-      ) if v.data?
-
-### the client
-
-    rg = restgraph.create(graph)
-
-    # set user input
-    rg.get('searchquery').query.value = "foo"
-    rg.get('searchquery').category.value = "scifi"
-
-    # get items
-    graph.items.data.get (data) ->
-      # do something with data, now we add a duplicate
-      book = data[0]
-      delete book.id
-      book.post()
-
-This could be used to allow server and/or clients to share the same rest-specs.
-
-> NOTE: see a minimal examplesource here: [coffeescript](/test/restgraph.coffee) / [javascript](/test/restgraph.js)      
+See the [ohmygraph](https://npmjs.org/packages/ohmygraph) module.
 
 # Philosophy
 

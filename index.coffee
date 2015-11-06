@@ -7,6 +7,8 @@ clone   = (obj) -> ( if typeof obj is 'object' then JSON.parse JSON.stringify ob
 module.exports = ( () ->
 
   @.cache = {}
+  @.reftoken = '$ref'
+  @.pathtoken = "#"
   
   @.findIds = (json, ids) ->
     id = false; obj = {}
@@ -18,7 +20,7 @@ module.exports = ( () ->
 
   @.get_json_pointer = (ref,root) ->
     evalstr = ref.replace( /\\\//,'#SLASH#').replace( /\//g, '.' ).replace( /#SLASH#/,'/')
-    evalstr = evalstr.replace /#\./,''
+    evalstr = evalstr.replace new RegExp(@.pathtoken+'\.'),''
     try
       console.log evalstr if process.env.DEBUG?
       result = expr.getter( evalstr )(root)
@@ -29,8 +31,8 @@ module.exports = ( () ->
 
   @.replace = (json, ids, root) ->
     for k,v of json 
-      if v? and v['$ref']? 
-        ref = v['$ref']
+      if v? and v[reftoken]? 
+        ref = v[reftoken]
         if Array.isArray ref
           ref = @.replace ref, ids, root 
         else if ids[ ref ]?
@@ -38,8 +40,8 @@ module.exports = ( () ->
         else if request and String(ref).match /^http/
           @.cache[ref] = JSON.parse request("GET",ref).getBody().toString() if not @.cache[ref]
           json[k] = @.cache[ref] 
-          if ref.match("#")
-            jsonpointer = ref.replace /.*#/,'#'
+          if ref.match( @.pathtoken )
+            jsonpointer = ref.replace new RegExp(".*"+pathtoken),@.pathtoken
             json[k] = @.get_json_pointer jsonpointer, json[k] if jsonpointer.length 
         else if fs and fs.existsSync ref 
           str = fs.readFileSync(ref).toString()
@@ -47,7 +49,7 @@ module.exports = ( () ->
             json[k] = require ref
           else 
             json[k] = JSON.parse str
-        else if String(ref).match /^#\//
+        else if String(ref).match new RegExp('^'+@.pathtoken)
           json[k] = @.get_json_pointer ref, root
       else
         @.replace v, ids, root if typeof v is 'object'
@@ -81,7 +83,7 @@ module.exports = ( () ->
             result = data[$2] 
           else
             try
-              $2 = $2.replace(/^#\//,'').replace(/\//g,'.') # convert jsonpath to normal path
+              $2 = $2.replace( new RegExp('^'+@.pathtoken+'\/'),'' ).replace(/\//g,'.') # convert jsonpath to normal path
               result = expr.getter( $2 )(data)
             catch err
               result = ''
