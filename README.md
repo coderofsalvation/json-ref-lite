@@ -1,8 +1,8 @@
-Extremely light weight way to resolve jsonschema '$ref' references or create circular/graph structures (browser/coffeescript/javascript).
+Extremely light weight way to resolve jsonschema '$ref' references & inheritance: create circular/graphs, fractals from json (browser/coffeescript/javascript).
 
 <img alt="" src="https://raw.githubusercontent.com/coderofsalvation/jsongraph/master/logo.png"/>
 
-Dont think trees, think jsongraph, think graphmorphic applications.
+Stop processing json tree-structures, think json references and extentions.
 
 # Usage
 
@@ -86,8 +86,9 @@ Developer tools:
 | Feature                                             | Howto                                                                  |
 |-----------------------------------------------------|------------------------------------------------------------------------|
 |console.log debug output                             | `jref.debug = true`                                                    |
-|define ref token                                     | `jref.reftoken = '@ref'`                                               |
-|define jsonpointer starttoken                        | `jref.pathtoken = '#'`                                                 |
+|redefine ref token                                   | `jref.reftoken = '@ref'`                                               |
+|redefine extend token                                | `jref.extendtoken = '@extend'`                                         |
+|redefine jsonpointer starttoken                      | `jref.pathtoken = '#'`                                                 |
 
 > NOTE: re-defining tokens is useful to prevent resolving only certain references. A possible rule of thumb could be to have '$ref' references for serverside, and '@ref' references for clientside when resolving the same jsondata.
 
@@ -211,7 +212,38 @@ See superminimalistic dataflow programming example here [JS](/test/flowprogrammi
 
 > HINT: But hey, since you're reading this, why not use [jsongraph](https://npmjs.org/packages/jsongraph) instead?
 
-There you go.
+## Example: json inheritance / extensions
+
+The "$extend" key is an easy way to inherit/extend existing objects.
+It's like `patch` for json.
+
+    json = {
+      "a": {
+        "foo": {
+          "bar": { "title": "foo" }
+        }
+      },
+      "$extend": {
+        "$ref": "#a.foo.bar",
+        "location": "skyscraper",
+        "sex": "male"
+      }
+    }
+    jref.extend(json);
+
+output:
+
+    {
+      "a": {
+        "foo": {
+          "bar": {
+            "title": "foo",
+            "location": "skyscraper",
+            "sex": "male"
+          }
+        }
+      }
+    }
 
 ## Example: evaluating data into graph
 

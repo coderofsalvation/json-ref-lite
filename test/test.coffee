@@ -136,3 +136,36 @@ if not window?
   for j in json
     console.log JSON.stringify j, null, 2
     console.log util.inspect jref.resolve(j), {showHidden: false, depth: 5}
+
+
+  json = []
+  json.push
+    a:
+      {"$ref":"#/sdfb"}
+
+  for j in json
+    console.log JSON.stringify j, null, 2
+    console.log util.inspect jref.resolve(j), {showHidden: false, depth: 5}
+
+  json = []
+  json.push
+    a:
+      {"$ref":{"foo":"bar"}}
+
+  for j in json
+    console.log JSON.stringify j, null, 2
+    console.log util.inspect jref.resolve(j), {showHidden: false, depth: 5}
+  
+  json = 
+    a:
+      foo:
+        bar:
+          title: "foo"
+    "$extend":
+      "$ref": "#a.foo.bar"
+      location: "skyscraper"
+      sex: "male"
+
+  console.log JSON.stringify json, null, 2
+  jref.extend json
+  console.log JSON.stringify json, null, 2

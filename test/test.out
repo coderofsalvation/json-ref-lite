@@ -1,0 +1,313 @@
+{
+  "foo": {
+    "id": "foobar",
+    "value": "bar"
+  },
+  "example": {
+    "$ref": "foobar"
+  }
+}
+{
+  "foo": {
+    "id": "foobar",
+    "value": "bar"
+  },
+  "example": {
+    "value": "bar"
+  }
+}
+{
+  "foo": {
+    "id": "foobar",
+    "value": "bar",
+    "foo": "flop"
+  },
+  "example": {
+    "$ref": "foobar"
+  }
+}
+{
+  "foo": {
+    "id": "foobar",
+    "value": "bar",
+    "foo": "flop"
+  },
+  "example": {
+    "value": "bar",
+    "foo": "flop"
+  }
+}
+{
+  "foo": {
+    "id": "foobar",
+    "value": "bar",
+    "foo": "flop"
+  },
+  "example": {
+    "ids": [
+      {
+        "$ref": "foobar"
+      },
+      {
+        "$ref": "foobar"
+      }
+    ]
+  }
+}
+{
+  "foo": {
+    "id": "foobar",
+    "value": "bar",
+    "foo": "flop"
+  },
+  "example": {
+    "ids": [
+      {
+        "value": "bar",
+        "foo": "flop"
+      },
+      {
+        "value": "bar",
+        "foo": "flop"
+      }
+    ]
+  }
+}
+{
+  "foo": {
+    "value": "bar",
+    "foo": "flop"
+  },
+  "example": {
+    "ids": [
+      {
+        "$ref": "#/foo/value"
+      },
+      {
+        "$ref": "#/foo/foo"
+      }
+    ]
+  }
+}
+{
+  "foo": {
+    "value": "bar",
+    "foo": "flop"
+  },
+  "example": {
+    "ids": [
+      "bar",
+      "flop"
+    ]
+  }
+}
+{
+  "foo": {
+    "value": "bar",
+    "foo": "flop"
+  },
+  "example": {
+    "ids": {
+      "$ref": "#/foo/value/this/does/not/resolve"
+    }
+  }
+}
+{
+  "foo": {
+    "value": "bar",
+    "foo": "flop"
+  },
+  "example": {
+    "ids": ""
+  }
+}
+{
+  "foo": {
+    "$ref": "./test.json"
+  }
+}
+{
+  "foo": {
+    "$ref": "./test.json"
+  }
+}
+{
+  "foo": {
+    "$ref": "/this/does/not/exist/test.json"
+  }
+}
+{
+  "foo": {
+    "$ref": "/this/does/not/exist/test.json"
+  }
+}
+{
+  "foo": {
+    "$ref": "http://json-schema.org/address"
+  }
+}
+{
+  "foo": {
+    "$ref": "http://json-schema.org/address"
+  }
+}
+{
+  "foo": {
+    "$ref": "http://json-schema.org/address"
+  }
+}
+{
+  "foo": {
+    "$ref": "http://json-schema.org/address"
+  }
+}
+{
+  "foo": {
+    "$ref": "http://json-schema.org/address#/properties/region"
+  }
+}
+{
+  "foo": {
+    "$ref": "http://json-schema.org/address#/properties/region"
+  }
+}
+{
+  "bar": [
+    "one",
+    "two"
+  ],
+  "foo": {
+    "$ref": "#/bar[1]"
+  }
+}
+{
+  "bar": [
+    "one",
+    "two"
+  ],
+  "foo": "two"
+}
+{
+  "bar": [
+    "one",
+    "two"
+  ],
+  "length": {
+    "$ref": "#/bar.length"
+  }
+}
+{
+  "bar": [
+    "one",
+    "two"
+  ],
+  "length": 2
+}
+{
+  "foo": {
+    "$ref": "#/flop()"
+  }
+}
+{
+  "foo": "hello world"
+}
+{
+  "foo": [
+    {
+      "@ref": "@/flop()"
+    }
+  ]
+}
+{
+  "foo": [
+    "hello at world"
+  ]
+}
+{
+  "flo": {
+    "fla": "hello at world"
+  },
+  "one": {
+    "@ref": [
+      {
+        "@ref": "@flo/fla"
+      }
+    ],
+    "two": {
+      "@ref": [
+        {
+          "@ref": "@/flo/fla"
+        }
+      ]
+    }
+  }
+}
+expecting next line to be error:
+{
+  "flo": {
+    "fla": "hello at world"
+  },
+  "one": {
+    "@ref": [
+      "hello at world"
+    ],
+    "two": {
+      "@ref": [
+        {
+          "@ref": "@/flo/fla"
+        }
+      ]
+    }
+  }
+}
+{
+  "a": {
+    "a": true
+  },
+  "b": {
+    "b": true
+  },
+  "$ref": [
+    {
+      "$ref": "#/a"
+    },
+    {
+      "$ref": "#/b"
+    }
+  ]
+}
+{ a: { a: true },
+  b: { b: true },
+  '$ref': [ { a: true }, { b: true } ] }
+{
+  "a": {
+    "$ref": [
+      {
+        "$ref": "#/b"
+      }
+    ]
+  },
+  "b": {
+    "$ref": [
+      {
+        "$ref": "#/a"
+      }
+    ]
+  }
+}
+{ a: { '$ref': [ { '$ref': [ [Circular] ] } ] },
+  b: { '$ref': [ { '$ref': [ [Circular] ] } ] } }
+{
+  "a": {
+    "$ref": "#/sdfb"
+  }
+}
+{ a: undefined }
+{
+  "a": {
+    "$ref": {
+      "foo": "bar"
+    }
+  }
+}
+{ a: { '$ref': { foo: 'bar' } } }

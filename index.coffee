@@ -2,14 +2,20 @@
 fs      = ( if not window? then require 'fs' else false )
 request = ( if fs and fs.existsSync __dirname+'/../sync-request' then require 'sync-request' else false )
 expr    = require 'property-expr'
-clone   = (obj) -> ( if typeof obj is 'object' then JSON.parse JSON.stringify obj else {} )
 
 module.exports = ( () ->
 
   @.cache = {}
+  @.extendtoken = '$extend'
   @.reftoken = '$ref'
   @.pathtoken = "#"
   @.debug = false
+
+  @.clone = (obj) ->
+    return obj if obj == null or typeof obj != 'object' or typeof obj == 'function'
+    temp = obj.constructor()
+    temp[key] = @.clone(obj[key]) for key of obj
+    temp
   
   @.findIds = (json, ids) ->
     id = false; obj = {}
@@ -58,9 +64,18 @@ module.exports = ( () ->
         else if String(ref).match new RegExp('^'+@.pathtoken)
           console.log "checking "+ref+" pathtoken" if @.debug
           json[k] = @.get_json_pointer ref, root
-        console.log ref+" reference not found" if json[k].length == 0 and @.debug
+        console.log ref+" reference not found" if json[k]?.length? and json[k]?.length == 0 and @.debug
       else
         @.replace v, ids, root if typeof v is 'object'
+
+  @.extend = (json) ->
+    if typeof json is 'object'
+      for k,v of json 
+        if k is @.extendtoken and v[ @.reftoken ]?
+          ref = @.get_json_pointer v[ @.reftoken ], json
+          ( ref[rk] = rv if rk != @.reftoken ) for rk,rv of v
+          delete json[k]
+        v = @.extend v if typeof v is 'object'
 
   @.resolve = (json) ->
     ids = {}; @.findIds json, ids
@@ -70,7 +85,7 @@ module.exports = ( () ->
 
   @.evaluate = (json,data,cb) ->
     cb = @.evaluateStr if not cb?
-    for k,v of clone json 
+    for k,v of @.clone json 
       json[k] = cb v,data if typeof v is 'string'
       json[k] = @.evaluate v,data if typeof v is 'object'
     return json
