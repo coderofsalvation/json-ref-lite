@@ -1,6 +1,6 @@
 {
   "name": "json-ref-lite",
-  "version": "1.0.72",
+  "version": "1.0.73",
   "description":"Extremely light weight way to resolve jsonschema '$ref' references & inheritance: create circular/graphs, fractals from json (browser/coffeescript/javascript).",
   "main": "index.js",
   "dependencies": {
