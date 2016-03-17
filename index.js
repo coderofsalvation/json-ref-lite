@@ -64,7 +64,7 @@
       return result;
     };
     this.replace = function(json, ids, root) {
-      var jsonpointer, k, ref, ref1, ref2, results, str, v;
+      var jsonpointer, k, ref, ref1, ref2, results, str, url, v;
       results = [];
       for (k in json) {
         v = json[k];
@@ -84,10 +84,11 @@
           } else if (ids[ref] != null) {
             json[k] = ids[ref];
           } else if (request && String(ref).match(/^https?:/)) {
-            if (!this.cache[ref]) {
-              this.cache[ref] = JSON.parse(request("GET", ref).getBody().toString());
+            url = ref.match(/^[^#]*/);
+            if (!this.cache[url]) {
+              this.cache[url] = JSON.parse(request("GET", url).getBody().toString());
             }
-            json[k] = this.cache[ref];
+            json[k] = this.cache[url];
             if (ref.match(this.pathtoken)) {
               jsonpointer = ref.replace(new RegExp(".*" + pathtoken), this.pathtoken);
               if (jsonpointer.length) {

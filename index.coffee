@@ -50,8 +50,9 @@ module.exports = ( () ->
         else if ids[ ref ]?
           json[k] = ids[ ref ] 
         else if request and String(ref).match /^https?:/
-          @.cache[ref] = JSON.parse request("GET",ref).getBody().toString() if not @.cache[ref]
-          json[k] = @.cache[ref] 
+          url = ref.match(/^[^#]*/)
+          @.cache[url] = JSON.parse request("GET",url).getBody().toString() if not @.cache[url]
+          json[k] = @.cache[url]
           if ref.match( @.pathtoken )
             jsonpointer = ref.replace new RegExp(".*"+pathtoken),@.pathtoken
             json[k] = @.get_json_pointer jsonpointer, json[k] if jsonpointer.length 
