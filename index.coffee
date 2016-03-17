@@ -49,7 +49,7 @@ module.exports = ( () ->
           ref = @.replace ref, ids, root
         else if ids[ ref ]?
           json[k] = ids[ ref ] 
-        else if request and String(ref).match /^http/
+        else if request and String(ref).match /^https?:/
           @.cache[ref] = JSON.parse request("GET",ref).getBody().toString() if not @.cache[ref]
           json[k] = @.cache[ref] 
           if ref.match( @.pathtoken )

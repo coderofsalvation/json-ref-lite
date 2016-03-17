@@ -83,7 +83,7 @@
             ref = this.replace(ref, ids, root);
           } else if (ids[ref] != null) {
             json[k] = ids[ref];
-          } else if (request && String(ref).match(/^http/)) {
+          } else if (request && String(ref).match(/^https?:/)) {
             if (!this.cache[ref]) {
               this.cache[ref] = JSON.parse(request("GET", ref).getBody().toString());
             }
