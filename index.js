@@ -86,7 +86,7 @@
           } else if (request && String(ref).match(/^https?:/)) {
             url = ref.match(/^[^#]*/);
             if (!this.cache[url]) {
-              this.cache[url] = JSON.parse(request("GET", url).getBody().toString());
+              this.cache[url] = this.resolve(JSON.parse(request("GET", url).getBody().toString()));
             }
             json[k] = this.cache[url];
             if (ref.match(this.pathtoken)) {
@@ -98,9 +98,9 @@
           } else if (fs && fs.existsSync(ref)) {
             str = fs.readFileSync(ref).toString();
             if (str.match(/module\.exports/)) {
-              json[k] = require(ref);
+              json[k] = this.resolve(require(ref));
             } else {
-              json[k] = JSON.parse(str);
+              json[k] = this.resolve(JSON.parse(str));
             }
           } else if (String(ref).match(new RegExp('^' + this.pathtoken))) {
             if (this.debug) {

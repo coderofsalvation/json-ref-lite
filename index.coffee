@@ -51,7 +51,7 @@ module.exports = ( () ->
           json[k] = ids[ ref ] 
         else if request and String(ref).match /^https?:/
           url = ref.match(/^[^#]*/)
-          @.cache[url] = JSON.parse request("GET",url).getBody().toString() if not @.cache[url]
+          @.cache[url] = @.resolve JSON.parse request("GET",url).getBody().toString() if not @.cache[url]
           json[k] = @.cache[url]
           if ref.match( @.pathtoken )
             jsonpointer = ref.replace new RegExp(".*"+pathtoken),@.pathtoken
@@ -59,9 +59,9 @@ module.exports = ( () ->
         else if fs and fs.existsSync ref 
           str = fs.readFileSync(ref).toString()
           if str.match /module\.exports/
-            json[k] = require ref
+            json[k] = @.resolve require ref
           else 
-            json[k] = JSON.parse str
+            json[k] = @.resolve JSON.parse str
         else if String(ref).match new RegExp('^'+@.pathtoken)
           console.log "checking "+ref+" pathtoken" if @.debug
           json[k] = @.get_json_pointer ref, root
