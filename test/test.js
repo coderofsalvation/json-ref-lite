@@ -2,7 +2,7 @@
 (function() {
   var i, j, jref, json, k, l, len, len1, len2, len3, len4, len5, len6, m, n, o, p, util;
 
-  jref = require('json-ref-lite');
+  jref = require('../');
 
   json = [];
 

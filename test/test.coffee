@@ -1,4 +1,4 @@
-jref = require 'json-ref-lite'
+jref = require '../'
 
 json = []
 
