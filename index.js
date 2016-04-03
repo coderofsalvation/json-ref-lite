@@ -64,7 +64,7 @@
       return result;
     };
     this.replace = function(json, ids, root) {
-      var jsonpointer, k, ref, ref1, ref2, results, str, v;
+      var jsonpointer, k, ref, ref1, ref2, results, str, url, v;
       results = [];
       for (k in json) {
         v = json[k];
@@ -83,11 +83,12 @@
             ref = this.replace(ref, ids, root);
           } else if (ids[ref] != null) {
             json[k] = ids[ref];
-          } else if (request && String(ref).match(/^http/)) {
-            if (!this.cache[ref]) {
-              this.cache[ref] = JSON.parse(request("GET", ref).getBody().toString());
+          } else if (request && String(ref).match(/^https?:/)) {
+            url = ref.match(/^[^#]*/);
+            if (!this.cache[url]) {
+              this.cache[url] = this.resolve(JSON.parse(request("GET", url).getBody().toString()));
             }
-            json[k] = this.cache[ref];
+            json[k] = this.cache[url];
             if (ref.match(this.pathtoken)) {
               jsonpointer = ref.replace(new RegExp(".*" + pathtoken), this.pathtoken);
               if (jsonpointer.length) {
@@ -97,9 +98,9 @@
           } else if (fs && fs.existsSync(ref)) {
             str = fs.readFileSync(ref).toString();
             if (str.match(/module\.exports/)) {
-              json[k] = require(ref);
+              json[k] = this.resolve(require(ref));
             } else {
-              json[k] = JSON.parse(str);
+              json[k] = this.resolve(JSON.parse(str));
             }
           } else if (String(ref).match(new RegExp('^' + this.pathtoken))) {
             if (this.debug) {
